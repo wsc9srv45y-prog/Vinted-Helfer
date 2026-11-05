@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Vinted-Helfer">
+<meta name="theme-color" content="#f4f3ef">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Vinted-Helfer</title>
+<style>
+:root{--bg:#f4f3ef;--card:#fff;--ink:#1f2421;--mute:#6b716d;--line:#e4e2dc;--acc:#2f6f5e;--acc2:#e6f0ec;--err:#b3261e;--warn:#7a5200;--r:14px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.top{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;background:rgba(244,243,239,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.brand{font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.brand svg{width:22px;height:22px}
+nav{display:flex;gap:2px}
+.tab{border:0;background:none;font:inherit;font-size:15px;padding:7px 12px;border-radius:999px;color:var(--mute)}
+.tab.on{background:var(--ink);color:#fff}
+.tab .n[hidden]{display:none}
+.tab .n{display:inline-block;min-width:18px;font-size:11px;font-weight:700;background:var(--acc);color:#fff;border-radius:999px;padding:1px 5px;margin-left:3px}
+main{max-width:640px;margin:0 auto;padding:16px 16px calc(env(safe-area-inset-bottom) + 48px)}
+.view{display:none}.view.on{display:block}
+h2{font-size:22px;margin:4px 0 14px;letter-spacing:-.02em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.card-h{font-weight:650;margin-bottom:8px}
+.card-h.sub{margin-top:16px}
+.step{font-weight:650;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.step b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--acc);color:#fff;font-size:13px}
+.opt,.hint{color:var(--mute);font-weight:400}
+.hint{font-size:14px;margin:4px 0 10px}
+.small{font-size:13px}.center{text-align:center}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.thumbs.small{grid-template-columns:repeat(auto-fill,minmax(66px,1fr))}
+.th{position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:#eceae4;border:2px solid transparent}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th.main{border-color:var(--acc)}
+.th .x{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.6);color:#fff;font-size:16px;line-height:24px;padding:0}
+.th .star{position:absolute;left:4px;bottom:4px;background:var(--acc);color:#fff;border-radius:6px;font-size:11px;font-weight:700;padding:1px 5px}
+.th.add{display:grid;place-items:center;border:2px dashed #cfccc4;background:#fafaf8;color:var(--mute);text-align:center;font-size:14px;cursor:pointer}
+.badge{position:absolute;left:6px;top:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:2px 6px}
+textarea,input,select{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);-webkit-appearance:none;appearance:none}
+select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%236b716d' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;padding-right:32px}
+textarea{resize:vertical}
+input[type=checkbox]{width:20px;height:20px;-webkit-appearance:checkbox;appearance:auto;accent-color:var(--acc);flex:none}
+.row{display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap}
+.row>input{flex:1;min-width:0}
+.btn{font:inherit;font-weight:600;font-size:15px;border:1px solid var(--line);background:#fff;color:var(--ink);padding:11px 16px;border-radius:12px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:#fff}
+.btn.ghost{background:none}
+.btn.rec{background:var(--err);border-color:var(--err);color:#fff}
+.btn:disabled{opacity:.5}
+.btn.block{width:100%}
+.actions{display:grid;gap:8px;margin:16px 0 6px}
+.carousel{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:6px;margin:0 -14px;padding:0 14px 4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.carousel::-webkit-scrollbar{display:none}
+.slide{position:relative;flex:0 0 74%;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:#eceae4;scroll-snap-align:start}
+.slide img{width:100%;height:100%;object-fit:cover;display:block}
+.slide.wait{display:grid;place-content:center;justify-items:center;gap:6px;color:var(--mute);font-size:14px;background:repeating-linear-gradient(135deg,#f1efe9 0 12px,#ebe8e1 12px 24px)}
+.spin{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--acc);border-radius:50%;animation:sp 1s linear infinite}
+.spin.s{width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:-3px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.pv-count{font-size:12px;color:var(--mute);margin-top:6px}
+.pv-price{font-size:22px;font-weight:700;margin-top:10px}
+.pv-title{font-weight:600;font-size:17px}
+.pv-meta{color:var(--mute);font-size:14px;margin-top:2px}
+.pv-desc{white-space:pre-wrap;margin-top:10px;font-size:15px}
+.det{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+.det td{padding:7px 0;border-top:1px solid var(--line);vertical-align:top}
+.det td:first-child{color:var(--mute);width:38%}
+.err{background:#fdecea;color:var(--err);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:10px}
+.info{background:#fff4d9;color:var(--warn);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:10px}
+.ok{background:var(--acc2);color:var(--acc);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:10px}
+.field{margin-top:12px}
+.field>label,.lab{font-size:13px;color:var(--mute);font-weight:600;display:block;margin-bottom:4px}
+.lab{display:flex;justify-content:space-between;align-items:center}
+.copy{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);background:#fff;border-radius:8px;padding:3px 9px;color:var(--acc)}
+.chip{display:inline-block;font-size:12px;font-weight:650;border-radius:999px;padding:2px 9px;background:#eceae4;color:var(--mute)}
+.chip.bereit{background:#fff1cc;color:var(--warn)}
+.chip.online{background:#dceefe;color:#18558a}
+.chip.verkauft{background:var(--acc2);color:var(--acc)}
+.li{display:flex;gap:12px;align-items:center;padding:10px;background:#fff;border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px;cursor:pointer}
+.li img,.li .ph{width:56px;height:72px;object-fit:cover;border-radius:8px;background:#eceae4;flex:none}
+.li .t{font-weight:600;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.li .m{font-size:13px;color:var(--mute);margin-top:3px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.li .p{margin-left:auto;font-weight:700;white-space:nowrap}
+.filters{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;scrollbar-width:none}
+.fchip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font:inherit;font-size:14px;white-space:nowrap;color:var(--ink)}
+.fchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.stat{display:flex;justify-content:space-between;font-size:14px}
+.bar{height:6px;background:#eceae4;border-radius:3px;overflow:hidden;margin:4px 0 10px}
+.bar i{display:block;height:100%;background:var(--acc)}
+.bar i.hot{background:#c98a00}
+.link{background:none;border:0;font:inherit;color:var(--acc);padding:4px 0;margin-bottom:8px;font-weight:600}
+.link.danger{color:var(--err);display:block;margin:22px auto 0;font-weight:500}
+.check{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:15px}
+.steps{margin:0;padding-left:20px}.steps li{margin:6px 0}
+.empty{text-align:center;color:var(--mute);padding:40px 10px}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 20px);transform:translate(-50%,20px);opacity:0;transition:.25s;background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;max-width:90vw;font-size:14px;z-index:50;pointer-events:none;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="#2f6f5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.5a2 2 0 1 1 2-2"/><path d="M12 7.5v1L3 15a1.5 1.5 0 0 0 .9 2.7h16.2A1.5 1.5 0 0 0 21 15l-9-6.5"/></svg>Vinted-Helfer</div>
+  <nav>
+    <button class="tab" data-view="new">Neu</button>
+    <button class="tab" data-view="list">Liste<span class="n" id="badge" hidden></span></button>
+    <button class="tab" data-view="settings" aria-label="Einstellungen">⚙︎</button>
+  </nav>
+</header>
+<main>
+  <section class="view" id="v-new"></section>
+  <section class="view" id="v-edit"></section>
+  <section class="view" id="v-list"></section>
+  <section class="view" id="v-settings"></section>
+</main>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* ========== Helfer ========== */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const fmtEur = x => (x === '' || x == null || isNaN(x)) ? '– €' : Number(x).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
+const fmtUsd = x => x.toFixed(2).replace('.', ',') + ' $';
+const fmtDate = t => t ? new Date(t).toLocaleDateString('de-DE') : '';
+const urlMap = new WeakMap();
+function url(b) { if (!b) return ''; let u = urlMap.get(b); if (!u) { u = URL.createObjectURL(b); urlMap.set(b, u); } return u; }
+let toastT;
+function toast(msg, ms = 3200) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms); }
+const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+
+/* ========== Einstellungen ========== */
+const DEFAULTS = {
+  apiKey: '', textModel: 'gpt-5-mini', imageModel: 'gpt-image-1.5', quality: 'medium', size: '1024x1536',
+  transcribeModel: 'gpt-4o-mini-transcribe', fidelity: true, scene: 'auto', deko: 'keine', footer: '', spent: 0
+};
+function loadSettings() { try { return { ...DEFAULTS, ...JSON.parse(localStorage.getItem('vh-settings') || '{}') }; } catch (e) { return { ...DEFAULTS }; } }
+function saveSettings() { try { localStorage.setItem('vh-settings', JSON.stringify(S)); } catch (e) { } }
+let S = loadSettings();
+
+const SCENES = {
+  auto: { label: 'Automatisch (passend zum Teil)' },
+  holz: { label: 'Helles Holz', prompt: 'a light natural oak wooden floor with fine grain' },
+  leinen: { label: 'Weißes Leinen', prompt: 'a softly textured off-white linen cloth' },
+  beton: { label: 'Heller Beton', prompt: 'a smooth light grey concrete surface' },
+  bett: { label: 'Helles Bettlaken', prompt: 'a smooth white cotton bedsheet' },
+  baby: { label: 'Kinderzimmer, sanft', prompt: 'a soft cream-colored knitted cotton blanket with a calm nursery mood in gentle pastel tones' },
+  dunkel: { label: 'Dunkles Holz', prompt: 'a dark walnut wooden surface' }
+};
+const SCENE_KEYS = Object.keys(SCENES).filter(k => k !== 'auto');
+const sceneOptions = sel => Object.entries(SCENES).map(([k, v]) => `<option value="${k}" ${k === sel ? 'selected' : ''}>${esc(v.label)}</option>`).join('');
+const ZUSTAND = ['Neu mit Etikett', 'Neu ohne Etikett', 'Sehr gut', 'Gut', 'Zufriedenstellend'];
+const STATUS = { entwurf: 'Entwurf', bereit: 'Bereit', online: 'Online', verkauft: 'Verkauft' };
+
+function estImage() {
+  const base = { low: 0.011, medium: 0.042, high: 0.167, auto: 0.042 }[S.quality] ?? 0.042;
+  return base * (S.size === '1024x1024' ? 1 : 1.5) + 0.01;
+}
+const estItem = () => estImage() + 0.01;
+function addCost(item, x) { S.spent = (S.spent || 0) + x; saveSettings(); if (item) item.costs = (item.costs || 0) + x; }
+
+/* ========== Speicher (IndexedDB, nur auf diesem Gerät) ========== */
+const DB = (() => {
+  let p;
+  const open = () => p || (p = new Promise((res, rej) => {
+    const r = indexedDB.open('vinted-helfer', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('items', { keyPath: 'id' });
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  async function tx(mode, fn) {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction('items', mode); const req = fn(t.objectStore('items'));
+      t.oncomplete = () => res(req ? req.result : undefined); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+    });
+  }
+  return { all: () => tx('readonly', s => s.getAll()), put: it => tx('readwrite', s => s.put(it)), del: id => tx('readwrite', s => s.delete(id)), clear: () => tx('readwrite', s => s.clear()) };
+})();
+const items = new Map();
+async function save(item) { try { await DB.put(item); } catch (e) { toast('Speichern fehlgeschlagen: ' + e.message); } }
+const saveSoon = debounce(save, 600);
+
+/* ========== Bilder ========== */
+function loadImg(blob) {
+  return new Promise((res, rej) => { const u = URL.createObjectURL(blob); const img = new Image(); img.onload = () => { URL.revokeObjectURL(u); res(img); }; img.onerror = () => { URL.revokeObjectURL(u); rej(new Error('Bild konnte nicht gelesen werden')); }; img.src = u; });
+}
+async function drawScaled(blob, max) {
+  const img = await loadImg(blob); const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height); return c;
+}
+async function resizeToBlob(file, max = 1600) { const c = await drawScaled(file, max); return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('Bild-Konvertierung fehlgeschlagen')), 'image/jpeg', 0.88)); }
+async function toDataURL(blob, max = 1280) { return (await drawScaled(blob, max)).toDataURL('image/jpeg', 0.85); }
+function b64ToBlob(b64, type) { const bin = atob(b64); const a = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return new Blob([a], { type }); }
+const extOf = b => (b.type || '').includes('png') ? 'png' : (b.type || '').includes('webp') ? 'webp' : 'jpg';
+
+/* ========== OpenAI ========== */
+async function api(path, { json, form } = {}) {
+  const headers = { Authorization: 'Bearer ' + S.apiKey.trim() };
+  let body;
+  if (json) { headers['Content-Type'] = 'application/json'; body = JSON.stringify(json); } else if (form) body = form;
+  let r;
+  try { r = await fetch('https://api.openai.com/v1' + path, { method: body ? 'POST' : 'GET', headers, body }); }
+  catch (e) { throw new Error('Keine Verbindung zu OpenAI – Internet prüfen und nochmal probieren.'); }
+  const text = await r.text(); let data = null; try { data = JSON.parse(text); } catch (e) { }
+  if (!r.ok) {
+    const raw = data?.error?.message || text.slice(0, 300);
+    const err = new Error(friendly(r.status, raw)); err.status = r.status; err.code = data?.error?.code || ''; err.param = data?.error?.param || ''; err.raw = raw; throw err;
+  }
+  return data;
+}
+function friendly(status, msg) {
+  if (status === 401) return 'Der API-Key passt nicht. Bitte in den Einstellungen prüfen.';
+  if (/verif/i.test(msg)) return 'OpenAI will für dieses Modell erst eine Verifizierung eurer Organisation (platform.openai.com → Settings → Organization → Verify). Danach klappt\'s.';
+  if (status === 429) return /quota|billing|credit/i.test(msg) ? 'Kein Guthaben mehr auf dem OpenAI-Konto – unter Billing aufladen.' : 'Zu viele Anfragen auf einmal – kurz warten und nochmal.';
+  if (/safety|moderation/i.test(msg)) return 'OpenAI hat das Bild aus Sicherheitsgründen abgelehnt. Anderes Foto oder anderen Hintergrund probieren.';
+  return `OpenAI-Fehler (${status}): ${msg}`;
+}
+const isModelErr = e => e.code === 'model_not_found' || /model/i.test(e.param) || /(does not exist|not found|invalid model|unknown model|not supported).*model|model.*(does not exist|not found|not supported)/i.test(e.raw);
+const isParamErr = (e, name) => e.param === name || new RegExp(name, 'i').test(e.raw);
+
+const LISTING_SCHEMA = {
+  type: 'object', additionalProperties: false,
+  required: ['titel', 'beschreibung', 'kategorie', 'marke', 'groesse', 'zustand', 'farbe', 'material', 'preis', 'preis_hinweis', 'maengel', 'bild_beschreibung', 'szene', 'rueckfragen'],
+  properties: {
+    titel: { type: 'string', description: 'Max. 60 Zeichen, z. B. "Zara Strickpullover beige Gr. M"' },
+    beschreibung: { type: 'string', description: 'Lockere, ehrliche Beschreibung auf Deutsch, 2–5 kurze Sätze, ggf. Maße/Details, Mängel ehrlich nennen' },
+    kategorie: { type: 'string', description: 'Vinted-Kategoriepfad, z. B. "Damen > Kleidung > Pullover & Sweatshirts > Pullover"' },
+    marke: { type: 'string', description: 'Nur wenn erkennbar oder genannt, sonst leer' },
+    groesse: { type: 'string', description: 'Nur wenn erkennbar oder genannt, sonst leer' },
+    zustand: { type: 'string', enum: ZUSTAND },
+    farbe: { type: 'string' },
+    material: { type: 'string', description: 'Nur wenn vom Etikett ablesbar oder genannt, sonst leer' },
+    preis: { type: 'number', description: 'Realistischer Vinted-Preis in Euro, ganze Euro' },
+    preis_hinweis: { type: 'string', description: 'Ein kurzer Satz, wie der Preis zustande kommt' },
+    maengel: { type: 'string', description: 'Sichtbare oder genannte Mängel, sonst leer' },
+    bild_beschreibung: { type: 'string', description: 'English: precise visual description of the garment for an image model (type, exact colors, pattern, prints, logos, buttons, zippers, special details, visible flaws)' },
+    szene: { type: 'string', enum: SCENE_KEYS },
+    rueckfragen: { type: 'string', description: 'Was unklar ist und der Verkäufer prüfen sollte (z. B. Größe nicht erkennbar), sonst leer' }
+  }
+};
+const TEXT_SYSTEM = `Du schreibst Vinted-Anzeigen für private Verkäufer in Deutschland (Damen-, Herren- und Kindersachen).
+Stil: locker, ehrlich, kurz, wie ein normaler Mensch – kein Marketing-Sprech, keine Superlative, keine Hashtag-Listen, höchstens ein Emoji.
+Regeln:
+- Nutze die Fotos (vor allem Etiketten für Marke, Größe, Material) und die Notiz des Verkäufers. Angaben aus der Notiz haben Vorrang.
+- Erfinde nichts. Was nicht erkennbar oder genannt ist, bleibt leer und kommt in "rueckfragen".
+- Keine Floskeln wie "tierfreier Nichtraucherhaushalt", außer die Notiz sagt das.
+- Mängel immer ehrlich in Beschreibung und "maengel" nennen.
+- Preis: realistischer Second-Hand-Preis auf Vinted in ganzen Euro. Nennt die Notiz einen Preis, nimm den.
+- Szene: wähle den Hintergrund fürs Flatlay-Foto; "baby" nur für Baby- und Kindersachen.`;
+
+async function runText(item) {
+  item.textState = 'busy'; item.textError = ''; refresh(item, ['pv', 'text']);
+  try {
+    const imgs = await Promise.all(item.photos.slice(0, 6).map(b => toDataURL(b, 1280)));
+    const content = [{ type: 'text', text: `Notiz vom Verkäufer: ${item.note ? '"' + item.note + '"' : '(keine)'}\n\nErstelle die Vinted-Anzeige zu diesen ${imgs.length} Fotos.` }]
+      .concat(imgs.map(u => ({ type: 'image_url', image_url: { url: u, detail: 'high' } })));
+    const body = (model) => {
+      const b = { model, messages: [{ role: 'system', content: TEXT_SYSTEM }, { role: 'user', content }], response_format: { type: 'json_schema', json_schema: { name: 'vinted_anzeige', strict: true, schema: LISTING_SCHEMA } } };
+      if (/^(gpt-5|o\d)/.test(model)) b.reasoning_effort = 'low';
+      return b;
+    };
+    let res;
+    try { res = await api('/chat/completions', { json: body(S.textModel) }); }
+    catch (e) { if (isModelErr(e) && S.textModel !== 'gpt-4.1-mini') { toast(`Textmodell „${S.textModel}“ geht nicht – nehme gpt-4.1-mini.`); res = await api('/chat/completions', { json: body('gpt-4.1-mini') }); } else throw e; }
+    const msg = res.choices?.[0]?.message;
+    if (!msg || msg.refusal || !msg.content) throw new Error('Das Modell hat keinen Text geliefert' + (msg?.refusal ? ': ' + msg.refusal : '.'));
+    const L = JSON.parse(msg.content);
+    if (S.footer.trim()) L.beschreibung = (L.beschreibung || '').trim() + '\n\n' + S.footer.trim();
+    item.listing = L; item.textState = 'done'; addCost(item, 0.01);
+  } catch (e) { item.textState = 'error'; item.textError = e.message; }
+  await save(item); refresh(item, ['pv', 'text', 'img', 'status']);
+}
+
+function imagePrompt(item, extra) {
+  const key = item.scene === 'auto' ? (item.listing?.szene && SCENES[item.listing.szene] ? item.listing.szene : 'holz') : item.scene;
+  const deko = S.deko === 'dezent'
+    ? 'At most one or two small, subtle props at the very edge of the frame (e.g. a green leaf), clearly separate from the garment, never touching or covering it. No other clothing, shoes or accessories.'
+    : 'No props, no decoration, no other clothing items or accessories – only the garment.';
+  return `Turn this photo into a clean, realistic flat-lay product photo for a second-hand clothing listing.
+THE GARMENT MUST STAY EXACTLY AS IN THE PHOTO: same item, same colors and shade, same pattern, prints, logos, text and labels, same buttons, zippers, seams, cut and proportions. Keep visible wear, pilling, stains or damage. Do not add, remove, redesign or "improve" anything on the garment.
+${item.listing?.bild_beschreibung ? 'Garment: ' + item.listing.bild_beschreibung : ''}
+Arrangement: the garment lies flat, neatly smoothed, fully visible and centered, photographed straight from above with some margin around it. You may smooth out wrinkles and straighten it, but keep its true shape.
+Background: ${SCENES[key].prompt}. Soft natural window daylight, gentle realistic shadows, true-to-life colors – no color grading that changes the garment's color.
+${deko}
+No people, no hands, no mannequin, no added text, no watermark, no frame.${extra ? '\nAdditional wish: ' + extra : ''}`;
+}
+
+async function runImage(item, extra = '') {
+  item.imgState = 'busy'; item.imgError = ''; item.imgStart = Date.now(); refresh(item, ['pv', 'img']);
+  try {
+    const base = item.photos[item.mainIndex] || item.photos[0];
+    const prompt = imagePrompt(item, extra);
+    const o = { model: S.imageModel, fidelity: !!S.fidelity, fmt: true };
+    let blob, lastErr;
+    for (let i = 0; i < 4 && !blob; i++) {
+      try {
+        const fd = new FormData();
+        fd.append('model', o.model); fd.append('prompt', prompt); fd.append('size', S.size); fd.append('quality', S.quality); fd.append('n', '1');
+        if (o.fidelity) fd.append('input_fidelity', 'high');
+        if (o.fmt) { fd.append('output_format', 'jpeg'); fd.append('output_compression', '90'); }
+        fd.append('image[]', new File([base], 'foto.jpg', { type: 'image/jpeg' }));
+        const res = await api('/images/edits', { form: fd });
+        const b64 = res.data?.[0]?.b64_json;
+        if (!b64) throw new Error('OpenAI hat kein Bild zurückgegeben.');
+        blob = b64ToBlob(b64, o.fmt ? 'image/jpeg' : 'image/png');
+      } catch (e) {
+        lastErr = e;
+        if (o.fidelity && isParamErr(e, 'input_fidelity')) { o.fidelity = false; continue; }
+        if (o.fmt && (isParamErr(e, 'output_format') || isParamErr(e, 'output_compression'))) { o.fmt = false; continue; }
+        if (o.model !== 'gpt-image-1' && isModelErr(e)) { toast(`Bildmodell „${o.model}“ geht nicht – nehme gpt-image-1.`); o.model = 'gpt-image-1'; continue; }
+        throw e;
+      }
+    }
+    if (!blob) throw lastErr || new Error('Bild fehlgeschlagen.');
+    item.generated.push(blob); item.selectedGen = item.generated.length - 1; item.useGen = true;
+    item.imgState = 'done'; addCost(item, estImage());
+  } catch (e) { item.imgState = 'error'; item.imgError = e.message; }
+  await save(item); refresh(item, ['pv', 'img']);
+}
+
+async function transcribe(blob, mime) {
+  const name = 'notiz.' + (mime.includes('webm') ? 'webm' : mime.includes('ogg') ? 'ogg' : 'mp4');
+  const send = model => { const fd = new FormData(); fd.append('file', new File([blob], name, { type: mime })); fd.append('model', model); fd.append('language', 'de'); return api('/audio/transcriptions', { form: fd }); };
+  try { return (await send(S.transcribeModel)).text || ''; }
+  catch (e) { if (isModelErr(e) && S.transcribeModel !== 'whisper-1') return (await send('whisper-1')).text || ''; throw e; }
+}
+
+/* ========== Neu-Ansicht ========== */
+const newDraft = () => ({ photos: [], mainIndex: 0, note: '', scene: S.scene });
+let draft = newDraft();
+let rec = null, recBusy = false;
+
+function renderNew() {
+  const el = $('#v-new');
+  el.innerHTML = `
+  <h2>Neues Teil</h2>
+  ${!S.apiKey ? `<div class="info">Erst den OpenAI-API-Key in den <a href="#" data-go="settings">Einstellungen</a> eintragen.</div>` : ''}
+  <div class="card">
+    <div class="step"><b>1</b> Fotos</div>
+    <p class="hint">Ganzes Teil im Bild, dazu Etikett und eventuelle Mängel extra. Tipp aufs Foto = Vorlage fürs KI-Bild (★).</p>
+    <div class="thumbs">
+      ${draft.photos.map((b, i) => `<div class="th ${i === draft.mainIndex ? 'main' : ''}" data-main="${i}"><img src="${url(b)}" alt=""><button class="x" data-rm="${i}" aria-label="Entfernen">×</button>${i === draft.mainIndex ? '<span class="star">★ KI</span>' : ''}</div>`).join('')}
+      <label class="th add"><input type="file" accept="image/*" multiple id="fileIn" hidden><span>＋<br>Foto</span></label>
+    </div>
+  </div>
+  <div class="card">
+    <div class="step"><b>2</b> Kurz beschreiben <span class="opt">(optional)</span></div>
+    <textarea id="note" rows="3" placeholder="z. B. Zara Pulli, Gr. M, 2x getragen, kleiner Fleck am Ärmel, so 15 €">${esc(draft.note)}</textarea>
+    <div class="row"><button class="btn ${rec ? 'rec' : 'ghost'}" id="recBtn" ${recBusy ? 'disabled' : ''}>${recBusy ? '<span class="spin s"></span> Wird umgewandelt…' : rec ? '⏹ Aufnahme stoppen' : '🎙 Sprachnotiz'}</button><span class="hint small" style="margin:0">oder Diktier-Mikro der iPhone-Tastatur</span></div>
+  </div>
+  <div class="card">
+    <div class="step"><b>3</b> Hintergrund</div>
+    <select id="scene">${sceneOptions(draft.scene)}</select>
+  </div>
+  <div class="actions">
+    <button class="btn primary" id="goBtn">Anzeige erstellen</button>
+    <button class="btn" id="goNextBtn">Erstellen &amp; gleich nächstes Teil</button>
+  </div>
+  <p class="hint center small">ca. ${fmtUsd(estItem())} pro Teil · läuft über euren OpenAI-Key</p>`;
+  $('#fileIn', el).onchange = async e => {
+    const files = [...e.target.files]; if (!files.length) return;
+    toast(`${files.length} Foto(s) werden vorbereitet…`, 1500);
+    for (const f of files) { try { draft.photos.push(await resizeToBlob(f)); } catch (err) { toast(err.message); } }
+    renderNew();
+  };
+  $$('[data-rm]', el).forEach(b => b.onclick = ev => { ev.stopPropagation(); const i = +b.dataset.rm; draft.photos.splice(i, 1); if (draft.mainIndex >= draft.photos.length || draft.mainIndex === i) draft.mainIndex = 0; else if (i < draft.mainIndex) draft.mainIndex--; renderNew(); });
+  $$('[data-main]', el).forEach(d => d.onclick = () => { draft.mainIndex = +d.dataset.main; renderNew(); });
+  $('#note', el).oninput = e => draft.note = e.target.value;
+  $('#scene', el).onchange = e => draft.scene = e.target.value;
+  $('#recBtn', el).onclick = toggleRec;
+  $('#goBtn', el).onclick = () => createListing(true);
+  $('#goNextBtn', el).onclick = () => createListing(false);
+}
+
+async function toggleRec() {
+  if (rec) { rec.stop(); return; }
+  if (!S.apiKey) { toast('Erst den API-Key in den Einstellungen eintragen.'); return; }
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { toast('Aufnahme geht hier nicht – nimm das Diktier-Mikro der Tastatur.'); return; }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+  catch (e) { toast('Kein Mikrofonzugriff – alternativ das Diktier-Mikro der Tastatur nutzen.'); return; }
+  const type = ['audio/mp4', 'audio/webm;codecs=opus', 'audio/webm', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+  const r = new MediaRecorder(stream, type ? { mimeType: type } : undefined); const chunks = [];
+  r.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  r.onstop = async () => {
+    stream.getTracks().forEach(t => t.stop());
+    const mime = (r.mimeType || type || 'audio/mp4').split(';')[0];
+    rec = null; recBusy = true; renderNew();
+    try {
+      const txt = (await transcribe(new Blob(chunks, { type: mime }), mime)).trim();
+      if (txt) draft.note = (draft.note ? draft.note.trim() + ' ' : '') + txt;
+      addCost(null, 0.003);
+    } catch (e) { toast(e.message, 5000); }
+    recBusy = false; renderNew();
+  };
+  rec = r; r.start(); renderNew();
+}
+
+async function createListing(open) {
+  if (!S.apiKey) { toast('Erst den API-Key in den Einstellungen eintragen.'); show('settings'); return; }
+  if (!draft.photos.length) { toast('Mindestens ein Foto bitte.'); return; }
+  if (rec) { toast('Erst die Sprachaufnahme stoppen.'); return; }
+  const item = {
+    id: uid(), createdAt: Date.now(), status: 'entwurf', photos: draft.photos, mainIndex: draft.mainIndex, note: draft.note.trim(), scene: draft.scene,
+    generated: [], selectedGen: 0, useGen: true, listing: null, textState: 'idle', textError: '', imgState: 'idle', imgError: '', costs: 0
+  };
+  items.set(item.id, item); await save(item);
+  draft = newDraft();
+  if (open) { currentId = item.id; show('edit'); } else { renderNew(); toast('Läuft im Hintergrund – nächstes Teil! (App dabei offen lassen)', 4000); }
+  updateBadge();
+  await runText(item);
+  await runImage(item);
+}
+
+/* ========== Bearbeiten / Vorschau ========== */
+let currentId = null;
+const finalPhotos = it => ((it.useGen && it.generated[it.selectedGen] && it.imgState !== 'busy') ? [it.generated[it.selectedGen]] : []).concat(it.photos);
+
+function renderEdit() {
+  const it = items.get(currentId); const el = $('#v-edit');
+  if (!it) { show('list'); return; }
+  el.innerHTML = `<button class="link" id="backBtn">‹ Zur Liste</button>
+    <div class="card"><div class="card-h" style="display:flex;justify-content:space-between;align-items:center">Vorschau <span class="chip ${it.status}">${STATUS[it.status]}</span></div>
+      <div id="e-photos"></div><div id="e-body"></div></div>
+    <div id="e-status"></div><div id="e-text"></div><div id="e-img"></div>
+    <button class="link danger" id="delBtn">Teil löschen</button>`;
+  renderPhotos(it); renderBody(it); renderStatus(it); renderTextCard(it); renderImgCard(it);
+  $('#backBtn', el).onclick = () => show('list');
+  $('#delBtn', el).onclick = async () => {
+    if (!confirm('Dieses Teil wirklich löschen?')) return;
+    items.delete(it.id); try { await DB.del(it.id); } catch (e) { } updateBadge(); show('list');
+  };
+}
+function renderPhotos(it) {
+  const el = $('#e-photos'); if (!el) return;
+  const showGen = it.useGen && it.generated[it.selectedGen] && it.imgState !== 'busy';
+  const slides = [];
+  if (it.imgState === 'busy' && it.useGen) slides.push(`<div class="slide wait"><div class="spin"></div><div>KI-Bild wird erstellt…</div><div class="elapsed" data-start="${it.imgStart}">0:00</div><div class="small">dauert meist 30–90 Sek.</div></div>`);
+  finalPhotos(it).forEach((b, i) => slides.push(`<div class="slide"><img src="${url(b)}" alt="">${i === 0 && showGen ? '<span class="badge">KI-Bild</span>' : ''}</div>`));
+  el.innerHTML = `<div class="carousel">${slides.join('')}</div><div class="pv-count">${finalPhotos(it).length} Fotos in der Anzeige · zum Blättern wischen</div>`;
+}
+function renderBody(it) {
+  const el = $('#e-body'); if (!el) return;
+  const L = it.listing;
+  if (it.textState === 'busy') { el.innerHTML = `<p class="hint" style="margin-top:14px"><span class="spin s"></span> Text wird geschrieben…</p>`; return; }
+  if (!L) { el.innerHTML = `<p class="hint" style="margin-top:14px">Noch kein Text.</p>`; return; }
+  const rows = [['Kategorie', L.kategorie], ['Marke', L.marke], ['Größe', L.groesse], ['Zustand', L.zustand], ['Farbe', L.farbe], ['Material', L.material]].filter(r => r[1]);
+  el.innerHTML = `<div class="pv-price">${fmtEur(L.preis)}</div>
+    <div class="pv-title">${esc(L.titel || '(ohne Titel)')}</div>
+    <div class="pv-meta">${[L.marke, L.groesse, L.zustand].filter(Boolean).map(esc).join(' · ')}</div>
+    <div class="pv-desc">${esc(L.beschreibung)}</div>
+    <table class="det">${rows.map(r => `<tr><td>${r[0]}</td><td>${esc(r[1])}</td></tr>`).join('')}</table>`;
+}
+
+const FIELDS = [['titel', 'Titel'], ['beschreibung', 'Beschreibung'], ['preis', 'Preis (€)'], ['kategorie', 'Kategorie'], ['marke', 'Marke'], ['groesse', 'Größe'], ['zustand', 'Zustand'], ['farbe', 'Farbe'], ['material', 'Material']];
+function renderTextCard(it) {
+  const el = $('#e-text'); if (!el) return;
+  const L = it.listing; const busy = it.textState === 'busy';
+  let inner = '';
+  if (it.textState === 'error') inner += `<div class="err">${esc(it.textError)}</div>`;
+  if (L) {
+    if (L.rueckfragen) inner += `<div class="info"><b>Bitte checken:</b> ${esc(L.rueckfragen)}</div>`;
+    inner += FIELDS.map(([k, lab]) => {
+      let ctrl;
+      if (k === 'beschreibung') ctrl = `<textarea data-f="${k}" rows="7">${esc(L[k])}</textarea>`;
+      else if (k === 'zustand') ctrl = `<select data-f="${k}">${ZUSTAND.map(z => `<option ${z === L[k] ? 'selected' : ''}>${z}</option>`).join('')}</select>`;
+      else if (k === 'preis') ctrl = `<input data-f="${k}" type="number" inputmode="decimal" step="0.5" min="0" value="${esc(L[k])}">${L.preis_hinweis ? `<p class="hint small" style="margin:4px 0 0">${esc(L.preis_hinweis)}</p>` : ''}`;
+      else ctrl = `<input data-f="${k}" value="${esc(L[k])}">`;
+      return `<div class="field"><div class="lab"><span>${lab}</span><button class="copy" data-copy="${k}">Kopieren</button></div>${ctrl}</div>`;
+    }).join('');
+  }
+  inner += `<div class="field"><label>Deine Notiz</label><textarea id="eNote" rows="2" placeholder="Infos für die KI, z. B. Größe, Mängel, Wunschpreis">${esc(it.note)}</textarea></div>
+    <div class="row"><button class="btn" id="reText" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin s"></span> Läuft…' : (L ? 'Text neu schreiben' : 'Text erstellen')}</button><span class="hint small" style="margin:0">ca. 0,01 $</span></div>`;
+  el.innerHTML = `<div class="card"><div class="card-h">Texte</div>${inner}</div>`;
+  $$('[data-f]', el).forEach(c => c.oninput = () => {
+    const k = c.dataset.f; it.listing[k] = k === 'preis' ? (c.value === '' ? '' : parseFloat(c.value.replace(',', '.'))) : c.value;
+    renderBody(it); saveSoon(it);
+  });
+  $$('[data-copy]', el).forEach(b => b.onclick = () => copy(String(it.listing[b.dataset.copy] ?? '').replace(/\.0+$/, ''), b));
+  $('#eNote', el).oninput = e => { it.note = e.target.value; saveSoon(it); };
+  $('#reText', el).onclick = () => runText(it);
+}
+function renderImgCard(it) {
+  const el = $('#e-img'); if (!el) return;
+  const busy = it.imgState === 'busy';
+  el.innerHTML = `<div class="card"><div class="card-h">KI-Bild</div>
+    ${it.imgState === 'error' ? `<div class="err">${esc(it.imgError)}</div>` : ''}
+    ${it.generated.length ? `<div class="thumbs small">${it.generated.map((b, i) => `<div class="th ${i === it.selectedGen ? 'main' : ''}" data-gen="${i}"><img src="${url(b)}" alt=""><span class="badge">${i + 1}</span></div>`).join('')}</div>
+    <label class="check"><input type="checkbox" id="useGen" ${it.useGen ? 'checked' : ''}> KI-Bild als erstes Foto verwenden</label>` : (busy ? '' : '<p class="hint">Noch kein KI-Bild.</p>')}
+    <div class="field"><label>Hintergrund</label><select id="eScene">${sceneOptions(it.scene)}</select></div>
+    <div class="field"><label>Änderungswunsch (optional)</label><input id="eExtra" placeholder="z. B. etwas heller, Ärmel ausbreiten"></div>
+    <div class="row"><button class="btn" id="reImg" ${busy ? 'disabled' : ''}>${busy ? '<span class="spin s"></span> Läuft…' : (it.generated.length ? 'Neues KI-Bild' : 'KI-Bild erstellen')}</button><span class="hint small" style="margin:0">ca. ${fmtUsd(estImage())}</span></div>
+    <div class="card-h sub">Originalfotos <span class="hint small">(★ = Vorlage fürs KI-Bild)</span></div>
+    <div class="thumbs small">${it.photos.map((b, i) => `<div class="th ${i === it.mainIndex ? 'main' : ''}" data-main="${i}"><img src="${url(b)}" alt="">${it.photos.length > 1 ? `<button class="x" data-rmo="${i}" aria-label="Entfernen">×</button>` : ''}${i === it.mainIndex ? '<span class="star">★</span>' : ''}</div>`).join('')}
+      <label class="th add"><input type="file" accept="image/*" multiple id="eFileIn" hidden><span>＋</span></label></div>
+    <p class="hint small">Das KI-Bild immer mit dem Original vergleichen – Farbe, Muster, Logo. Die Originale bleiben in der Anzeige, damit Käufer das echte Teil sehen.</p>
+  </div>`;
+  $$('[data-gen]', el).forEach(d => d.onclick = () => { it.selectedGen = +d.dataset.gen; it.useGen = true; save(it); renderImgCard(it); renderPhotos(it); });
+  const ug = $('#useGen', el); if (ug) ug.onchange = () => { it.useGen = ug.checked; save(it); renderPhotos(it); };
+  $('#eScene', el).onchange = e => { it.scene = e.target.value; save(it); };
+  $('#reImg', el).onclick = () => runImage(it, $('#eExtra').value.trim());
+  $$('[data-main]', el).forEach(d => d.onclick = () => { it.mainIndex = +d.dataset.main; save(it); renderImgCard(it); });
+  $$('[data-rmo]', el).forEach(b => b.onclick = ev => {
+    ev.stopPropagation(); const i = +b.dataset.rmo; it.photos.splice(i, 1);
+    if (it.mainIndex === i || it.mainIndex >= it.photos.length) it.mainIndex = 0; else if (i < it.mainIndex) it.mainIndex--;
+    save(it); renderImgCard(it); renderPhotos(it);
+  });
+  $('#eFileIn', el).onchange = async e => { for (const f of e.target.files) { try { it.photos.push(await resizeToBlob(f)); } catch (err) { toast(err.message); } } save(it); renderImgCard(it); renderPhotos(it); };
+}
+function renderStatus(it) {
+  const el = $('#e-status'); if (!el) return;
+  const ready = it.listing && it.textState !== 'busy' && it.imgState !== 'busy';
+  let h = '';
+  if (it.status === 'entwurf') {
+    h = `<div class="card"><div class="card-h">Freigabe</div>
+      <p class="hint">Bild und Text gecheckt? Dann freigeben – danach kommt die Hochlade-Hilfe.</p>
+      <button class="btn primary block" id="stOk" ${ready ? '' : 'disabled'}>${ready ? 'Passt so – freigeben ✓' : '<span class="spin s"></span> Wird noch erstellt…'}</button></div>`;
+  } else if (it.status === 'bereit') {
+    h = `<div class="card"><div class="card-h">Auf Vinted hochladen</div>
+      <ol class="steps">
+        <li><button class="btn dark" id="stShare">📲 Fotos sichern (${finalPhotos(it).length})</button><div class="hint small" style="margin:4px 0 0">Im Teilen-Menü „Bilder sichern“ wählen – sie landen in der Mediathek.</div></li>
+        <li><button class="btn" id="stCopyAll">Titel + Beschreibung kopieren</button> <span class="hint small">einzelne Felder unten bei „Texte“</span></li>
+        <li><a class="btn" href="https://www.vinted.de/items/new" target="_blank" rel="noopener">Vinted öffnen ↗</a> <span class="hint small">Fotos auswählen, Text einfügen, Kategorie, Größe, Zustand und Preis setzen</span></li>
+      </ol>
+      <div class="row" style="margin-top:12px"><button class="btn primary" id="stOnline">Ist online ✓</button><button class="btn ghost" id="stBack">Zurück zum Entwurf</button></div></div>`;
+  } else if (it.status === 'online') {
+    h = `<div class="card"><div class="card-h">Online seit ${fmtDate(it.onlineAt)}</div>
+      <div class="field"><label>Verkauft für (€)</label><div class="row" style="margin-top:0"><input id="stPrice" type="number" inputmode="decimal" step="0.5" value="${esc(it.listing?.preis ?? '')}"><button class="btn primary" id="stSold">Verkauft ✓</button></div></div>
+      <button class="link" id="stBack" style="margin-top:10px">Zurück auf „Bereit“</button></div>`;
+  } else if (it.status === 'verkauft') {
+    h = `<div class="card"><div class="ok">Verkauft am ${fmtDate(it.soldAt)} für ${fmtEur(it.soldPrice)} 🎉</div><button class="link" id="stBack">Doch nicht verkauft</button></div>`;
+  }
+  el.innerHTML = h;
+  const on = (id, fn) => { const b = $('#' + id, el); if (b) b.onclick = fn; };
+  on('stOk', () => setStatus(it, 'bereit'));
+  on('stShare', () => shareImages(it));
+  on('stCopyAll', e => copy(`${it.listing?.titel || ''}\n\n${it.listing?.beschreibung || ''}`, e.currentTarget));
+  on('stOnline', () => { it.onlineAt = Date.now(); setStatus(it, 'online'); });
+  on('stSold', () => { const v = parseFloat(String($('#stPrice').value).replace(',', '.')); if (isNaN(v)) { toast('Bitte Verkaufspreis eintragen.'); return; } it.soldPrice = v; it.soldAt = Date.now(); setStatus(it, 'verkauft'); });
+  on('stBack', () => setStatus(it, { bereit: 'entwurf', online: 'bereit', verkauft: 'online' }[it.status]));
+}
+async function setStatus(it, st) { it.status = st; await save(it); updateBadge(); renderEdit(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+async function copy(text, btn) {
+  try { await navigator.clipboard.writeText(text); }
+  catch (e) { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (_) { } t.remove(); }
+  if (btn) { const o = btn.textContent; btn.textContent = 'Kopiert ✓'; setTimeout(() => btn.textContent = o, 1400); } else toast('Kopiert');
+}
+async function shareImages(it) {
+  const files = finalPhotos(it).map((b, i) => new File([b], `vinted-${(it.listing?.titel || 'teil').replace(/[^\wäöüß-]+/gi, '-').slice(0, 30)}-${i + 1}.${extOf(b)}`, { type: b.type || 'image/jpeg' }));
+  if (navigator.canShare && navigator.canShare({ files })) {
+    try { await navigator.share({ files }); } catch (e) { if (e.name !== 'AbortError') toast('Teilen ging nicht: ' + e.message); }
+    return;
+  }
+  files.forEach(f => { const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); });
+  toast('Fotos werden heruntergeladen');
+}
+
+/* ========== Liste ========== */
+let filter = 'alle';
+function renderList() {
+  const el = $('#v-list');
+  const all = [...items.values()].sort((a, b) => b.createdAt - a.createdAt);
+  const y = new Date().getFullYear();
+  const sold = all.filter(i => i.status === 'verkauft' && new Date(i.soldAt).getFullYear() === y);
+  const sum = sold.reduce((s, i) => s + (Number(i.soldPrice) || 0), 0);
+  const shown = filter === 'alle' ? all : all.filter(i => i.status === filter);
+  const cnt = k => all.filter(i => i.status === k).length;
+  el.innerHTML = `<h2>Eure Teile</h2>
+    <div class="card"><div class="card-h">Verkauft ${y}</div>
+      <div class="stat"><span>${sold.length} von 30 Verkäufen</span><span>${fmtEur(sum)} von 2.000 €</span></div>
+      <div class="bar"><i class="${sold.length >= 25 ? 'hot' : ''}" style="width:${Math.min(100, sold.length / 30 * 100)}%"></i></div>
+      <div class="bar"><i class="${sum >= 1700 ? 'hot' : ''}" style="width:${Math.min(100, sum / 2000 * 100)}%"></i></div>
+      <p class="hint small" style="margin:0">Ab 30 Verkäufen oder 2.000 € im Jahr meldet Vinted euch ans Finanzamt. Private Gebrauchtkleidung bleibt trotzdem steuerfrei – diese Liste ist euer Nachweis.</p>
+    </div>
+    <div class="filters">${[['alle', 'Alle', all.length], ['entwurf', 'Entwürfe', cnt('entwurf')], ['bereit', 'Bereit', cnt('bereit')], ['online', 'Online', cnt('online')], ['verkauft', 'Verkauft', cnt('verkauft')]].map(([k, l, n]) => `<button class="fchip ${filter === k ? 'on' : ''}" data-filter="${k}">${l} ${n}</button>`).join('')}</div>
+    ${shown.length ? shown.map(i => {
+      const th = (i.useGen && i.generated[i.selectedGen]) || i.photos[0];
+      const busy = i.textState === 'busy' || i.imgState === 'busy';
+      const errd = i.textState === 'error' || i.imgState === 'error';
+      return `<div class="li" data-open="${i.id}">${th ? `<img src="${url(th)}" alt="">` : '<div class="ph"></div>'}
+        <div style="min-width:0;flex:1"><div class="t">${esc(i.listing?.titel || (i.textState === 'busy' ? 'Wird erstellt…' : '(ohne Titel)'))}</div>
+        <div class="m"><span class="chip ${i.status}">${STATUS[i.status]}</span>${busy ? '<span class="spin s"></span>' : ''}${errd ? '<span style="color:var(--err)">Fehler</span>' : ''}<span>${fmtDate(i.createdAt)}</span></div></div>
+        <div class="p">${i.status === 'verkauft' ? fmtEur(i.soldPrice) : fmtEur(i.listing?.preis)}</div></div>`;
+    }).join('') : `<div class="empty">${all.length ? 'Nichts in diesem Filter.' : 'Noch keine Teile. Leg oben bei „Neu“ los.'}</div>`}
+    ${all.length ? `<button class="btn ghost block" id="csvBtn" style="margin-top:8px">Liste als CSV exportieren</button>` : ''}`;
+  $$('[data-filter]', el).forEach(b => b.onclick = () => { filter = b.dataset.filter; renderList(); });
+  $$('[data-open]', el).forEach(d => d.onclick = () => { currentId = d.dataset.open; show('edit'); });
+  const cb = $('#csvBtn', el); if (cb) cb.onclick = exportCsv;
+}
+function exportCsv() {
+  const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+  const num = v => (v === '' || v == null || isNaN(v)) ? '' : String(v).replace('.', ',');
+  const head = ['Erstellt', 'Status', 'Titel', 'Marke', 'Größe', 'Zustand', 'Angebotspreis', 'Online seit', 'Verkauft am', 'Verkaufspreis'];
+  const rows = [...items.values()].sort((a, b) => a.createdAt - b.createdAt).map(i => [fmtDate(i.createdAt), STATUS[i.status], i.listing?.titel, i.listing?.marke, i.listing?.groesse, i.listing?.zustand, num(i.listing?.preis), fmtDate(i.onlineAt), fmtDate(i.soldAt), num(i.soldPrice)].map(q).join(';'));
+  const blob = new Blob(['﻿' + [head.map(q).join(';')].concat(rows).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `vinted-verkaeufe-${new Date().toISOString().slice(0, 10)}.csv`; document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ========== Einstellungen ========== */
+function renderSettings() {
+  const el = $('#v-settings');
+  const sel = (k, opts) => `<select data-s="${k}">${opts.map(([v, l]) => `<option value="${v}" ${S[k] === v ? 'selected' : ''}>${l}</option>`).join('')}</select>`;
+  el.innerHTML = `<h2>Einstellungen</h2>
+  <div class="card"><div class="card-h">OpenAI-Zugang</div>
+    <div class="row" style="margin-top:0"><input type="password" data-s="apiKey" id="sKey" value="${esc(S.apiKey)}" placeholder="sk-…" autocomplete="off" autocapitalize="off" spellcheck="false"><button class="btn ghost" id="sShow">Zeigen</button></div>
+    <p class="hint small">Bleibt nur auf diesem Gerät. Erstellen auf platform.openai.com → API keys. Dort unbedingt ein Ausgabenlimit setzen.</p>
+    <button class="btn" id="sTest">Verbindung testen</button>
+  </div>
+  <div class="card"><div class="card-h">Bilder</div>
+    <div class="field"><label>Qualität</label>${sel('quality', [['low', 'Niedrig (am günstigsten)'], ['medium', 'Mittel (empfohlen)'], ['high', 'Hoch (teuer)']])}</div>
+    <div class="field"><label>Format</label>${sel('size', [['1024x1536', 'Hochformat 2:3 (passt zu Vinted)'], ['1024x1024', 'Quadratisch']])}</div>
+    <div class="field"><label>Standard-Hintergrund</label><select data-s="scene">${sceneOptions(S.scene)}</select></div>
+    <div class="field"><label>Deko im Bild</label>${sel('deko', [['keine', 'Keine – nur das Teil'], ['dezent', 'Dezent am Rand']])}</div>
+    <label class="check"><input type="checkbox" data-s="fidelity" ${S.fidelity ? 'checked' : ''}> Hohe Detailtreue (Logos, Muster genauer)</label>
+  </div>
+  <div class="card"><div class="card-h">Texte</div>
+    <div class="field"><label>Fester Zusatz unter jeder Beschreibung</label><textarea data-s="footer" rows="2" placeholder="z. B. Versand innerhalb von 2 Tagen. Schaut gern in meine anderen Sachen!">${esc(S.footer)}</textarea></div>
+  </div>
+  <div class="card"><div class="card-h">Modelle <span class="hint small">(nur ändern, wenn OpenAI neue rausbringt)</span></div>
+    <div class="field"><label>Textmodell</label><input data-s="textModel" list="dlText" value="${esc(S.textModel)}" autocapitalize="off" spellcheck="false"></div>
+    <div class="field"><label>Bildmodell</label><input data-s="imageModel" list="dlImg" value="${esc(S.imageModel)}" autocapitalize="off" spellcheck="false"></div>
+    <div class="field"><label>Sprachnotiz-Modell</label><input data-s="transcribeModel" list="dlTr" value="${esc(S.transcribeModel)}" autocapitalize="off" spellcheck="false"></div>
+    <datalist id="dlText"><option value="gpt-5-mini"><option value="gpt-5"><option value="gpt-4.1-mini"></datalist>
+    <datalist id="dlImg"><option value="gpt-image-2"><option value="gpt-image-1.5"><option value="gpt-image-1"><option value="gpt-image-1-mini"></datalist>
+    <datalist id="dlTr"><option value="gpt-4o-mini-transcribe"><option value="gpt-4o-transcribe"><option value="whisper-1"></datalist>
+  </div>
+  <div class="card"><div class="card-h">Kosten &amp; Daten</div>
+    <div class="stat"><span>Geschätzt verbraucht</span><b>ca. ${fmtUsd(S.spent || 0)}</b></div>
+    <p class="hint small">Grobe Schätzung – die echte Abrechnung steht auf platform.openai.com → Usage.</p>
+    <div class="row"><button class="btn ghost" id="sReset">Zähler zurücksetzen</button><button class="btn ghost" id="sWipe" style="color:var(--err)">Alle Teile löschen</button></div>
+    <p class="hint small">${items.size} Teile auf diesem Gerät. Die Daten liegen nur hier im Browser, nicht in einer Cloud. Auf dem iPhone die App über „Teilen → Zum Home-Bildschirm“ anlegen, sonst räumt Safari nach ein paar Wochen ohne Nutzung auf.</p>
+  </div>`;
+  $$('[data-s]', el).forEach(c => {
+    const ev = c.tagName === 'SELECT' || c.type === 'checkbox' ? 'change' : 'input';
+    c.addEventListener(ev, () => { const k = c.dataset.s; S[k] = c.type === 'checkbox' ? c.checked : c.value.trim() === '' && k.endsWith('Model') ? DEFAULTS[k] : c.value; saveSettings(); });
+  });
+  $('#sShow', el).onclick = e => { const k = $('#sKey'); k.type = k.type === 'password' ? 'text' : 'password'; e.target.textContent = k.type === 'password' ? 'Zeigen' : 'Verbergen'; };
+  $('#sTest', el).onclick = async e => {
+    if (!S.apiKey) { toast('Erst Key eintragen.'); return; }
+    const b = e.target; b.disabled = true; b.textContent = 'Teste…';
+    try { await api('/models'); toast('Verbindung klappt ✓'); } catch (err) { toast(err.message, 5000); }
+    b.disabled = false; b.textContent = 'Verbindung testen';
+  };
+  $('#sReset', el).onclick = () => { S.spent = 0; saveSettings(); renderSettings(); };
+  $('#sWipe', el).onclick = async () => { if (!confirm('Wirklich ALLE Teile auf diesem Gerät löschen?')) return; items.clear(); try { await DB.clear(); } catch (e) { } updateBadge(); renderSettings(); toast('Alles gelöscht'); };
+}
+
+/* ========== Navigation ========== */
+let view = 'new';
+function show(v) {
+  view = v;
+  $$('.view').forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
+  $$('.tab').forEach(t => t.classList.toggle('on', t.dataset.view === v || (v === 'edit' && t.dataset.view === 'list')));
+  ({ new: renderNew, edit: renderEdit, list: renderList, settings: renderSettings })[v]();
+  window.scrollTo(0, 0);
+}
+function refresh(item, parts) {
+  if (view === 'edit' && currentId === item.id) {
+    const fn = { pv: () => { renderPhotos(item); renderBody(item); }, text: () => renderTextCard(item), img: () => renderImgCard(item), status: () => renderStatus(item) };
+    parts.forEach(p => fn[p] && fn[p]());
+    if (parts.includes('pv') && !parts.includes('status')) renderStatus(item);
+  }
+  if (view === 'list') renderList();
+  updateBadge();
+}
+function updateBadge() {
+  const n = [...items.values()].filter(i => i.status === 'entwurf' || i.status === 'bereit').length;
+  const b = $('#badge'); b.hidden = !n; b.textContent = n;
+}
+$$('.tab').forEach(t => t.onclick = () => show(t.dataset.view));
+document.addEventListener('click', e => { const g = e.target.closest('[data-go]'); if (g) { e.preventDefault(); show(g.dataset.go); } });
+setInterval(() => $$('.elapsed').forEach(e => { const s = Math.max(0, Math.floor((Date.now() - Number(e.dataset.start)) / 1000)); e.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }), 1000);
+window.addEventListener('beforeunload', e => { if ([...items.values()].some(i => i.textState === 'busy' || i.imgState === 'busy')) { e.preventDefault(); e.returnValue = ''; } });
+
+(async function init() {
+  try {
+    (await DB.all()).forEach(it => {
+      if (it.textState === 'busy') { it.textState = 'error'; it.textError = 'Unterbrochen – bitte nochmal starten.'; }
+      if (it.imgState === 'busy') { it.imgState = 'error'; it.imgError = 'Unterbrochen – bitte nochmal starten.'; }
+      items.set(it.id, it);
+    });
+  } catch (e) { toast('Speicher nicht verfügbar: ' + e.message, 5000); }
+  try { navigator.storage?.persist?.(); } catch (e) { }
+  show(S.apiKey ? 'new' : 'settings');
+})();
+</script>
+</body>
+</html>
