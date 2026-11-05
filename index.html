@@ -103,6 +103,13 @@ input[type=checkbox]{width:20px;height:20px;-webkit-appearance:checkbox;appearan
 .check{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:15px}
 .steps{margin:0;padding-left:20px}.steps li{margin:6px 0}
 .empty{text-align:center;color:var(--mute);padding:40px 10px}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;width:100%;max-width:520px;border-radius:18px 18px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom) + 18px);display:grid;gap:10px}
+.sheet h3{margin:0;font-size:17px}
+.way{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.way:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.way-h{font-weight:650;font-size:15px;margin-bottom:4px}
+.saved{font-size:12px;color:var(--acc);margin-top:8px}
 #toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 20px);transform:translate(-50%,20px);opacity:0;transition:.25s;background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;max-width:90vw;font-size:14px;z-index:50;pointer-events:none;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
@@ -188,7 +195,7 @@ const DB = (() => {
   return { all: () => tx('readonly', s => s.getAll()), put: it => tx('readwrite', s => s.put(it)), del: id => tx('readwrite', s => s.delete(id)), clear: () => tx('readwrite', s => s.clear()) };
 })();
 const items = new Map();
-async function save(item) { try { await DB.put(item); } catch (e) { toast('Speichern fehlgeschlagen: ' + e.message); } }
+async function save(item) { item.updatedAt = Date.now(); try { await DB.put(item); } catch (e) { toast('Speichern fehlgeschlagen: ' + e.message); } }
 const saveSoon = debounce(save, 600);
 
 /* ========== Bilder ========== */
@@ -449,7 +456,7 @@ function renderPhotos(it) {
   const slides = [];
   if (it.imgState === 'busy' && it.useGen) slides.push(`<div class="slide wait"><div class="spin"></div><div>KI-Bild wird erstellt…</div><div class="elapsed" data-start="${it.imgStart}">0:00</div><div class="small">dauert meist 30–90 Sek.</div></div>`);
   finalPhotos(it).forEach((b, i) => slides.push(`<div class="slide"><img src="${url(b)}" alt="">${i === 0 && showGen ? '<span class="badge">KI-Bild</span>' : ''}</div>`));
-  el.innerHTML = `<div class="carousel">${slides.join('')}</div><div class="pv-count">${finalPhotos(it).length} Fotos in der Anzeige · zum Blättern wischen</div>`;
+  el.innerHTML = `<div class="carousel">${slides.join('')}</div><div class="pv-count">${finalPhotos(it).length} Fotos in der Anzeige · zum Blättern wischen</div><div class="saved">✓ Wird automatisch gespeichert – findest du jederzeit unter „Liste“</div>`;
 }
 function renderBody(it) {
   const el = $('#e-body'); if (!el) return;
@@ -528,13 +535,20 @@ function renderStatus(it) {
       <p class="hint">Bild und Text gecheckt? Dann freigeben – danach kommt die Hochlade-Hilfe.</p>
       <button class="btn primary block" id="stOk" ${ready ? '' : 'disabled'}>${ready ? 'Passt so – freigeben ✓' : '<span class="spin s"></span> Wird noch erstellt…'}</button></div>`;
   } else if (it.status === 'bereit') {
-    h = `<div class="card"><div class="card-h">Auf Vinted hochladen</div>
-      <ol class="steps">
-        <li><button class="btn dark" id="stShare">📲 Fotos sichern (${finalPhotos(it).length})</button><div class="hint small" style="margin:4px 0 0">Im Teilen-Menü „Bilder sichern“ wählen – sie landen in der Mediathek.</div></li>
-        <li><button class="btn" id="stCopyAll">Titel + Beschreibung kopieren</button> <span class="hint small">einzelne Felder unten bei „Texte“</span></li>
-        <li><a class="btn" href="https://www.vinted.de/items/new" target="_blank" rel="noopener">Vinted öffnen ↗</a> <span class="hint small">Fotos auswählen, Text einfügen, Kategorie, Größe, Zustand und Preis setzen</span></li>
-      </ol>
-      <div class="row" style="margin-top:12px"><button class="btn primary" id="stOnline">Ist online ✓</button><button class="btn ghost" id="stBack">Zurück zum Entwurf</button></div></div>`;
+    h = `<div class="card"><div class="card-h">Auf Vinted hochladen – such dir einen Weg aus</div>
+      <div class="way"><div class="way-h">📱 Direkt am iPhone (Vinted-App)</div>
+        <ol class="steps">
+          <li><button class="btn dark" id="stShare">Fotos sichern (${finalPhotos(it).length})</button><div class="hint small" style="margin:4px 0 0">Im Teilen-Menü „Bilder sichern“ – dann liegen sie in der Fotos-App ganz unten bei „Zuletzt“.</div></li>
+          <li><button class="btn" id="stCopyAll">Titel + Beschreibung kopieren</button></li>
+          <li>Vinted-App öffnen → „Verkaufen“ → Fotos wählen, Text einfügen. Kategorie, Größe, Zustand und Preis stehen unten bei „Texte“.</li>
+        </ol></div>
+      <div class="way"><div class="way-h">💻 Am Mac (Safari füllt automatisch aus)</div>
+        <ol class="steps">
+          <li><button class="btn dark" id="stExport">Zum Mac schicken (AirDrop)</button><div class="hint small" style="margin:4px 0 0">Die Datei landet am Mac im Ordner „Downloads“.</div></li>
+          <li>Am Mac in Safari <b>vinted.de → Artikel verkaufen</b> öffnen.</li>
+          <li>Unten rechts auf <b>„Vinted-Helfer“</b> klicken → Datei wählen → „Formular ausfüllen“. <span class="hint small">(Einmalig einrichten: siehe ⚙︎ Einstellungen)</span></li>
+        </ol></div>
+      <div class="row" style="margin-top:14px"><button class="btn primary" id="stOnline">Ist online ✓</button><button class="btn ghost" id="stBack">Zurück zum Entwurf</button></div></div>`;
   } else if (it.status === 'online') {
     h = `<div class="card"><div class="card-h">Online seit ${fmtDate(it.onlineAt)}</div>
       <div class="field"><label>Verkauft für (€)</label><div class="row" style="margin-top:0"><input id="stPrice" type="number" inputmode="decimal" step="0.5" value="${esc(it.listing?.preis ?? '')}"><button class="btn primary" id="stSold">Verkauft ✓</button></div></div>
@@ -546,6 +560,7 @@ function renderStatus(it) {
   const on = (id, fn) => { const b = $('#' + id, el); if (b) b.onclick = fn; };
   on('stOk', () => setStatus(it, 'bereit'));
   on('stShare', () => shareImages(it));
+  on('stExport', () => exportItems([it], 'vinted-' + slug(it.listing?.titel || 'teil')));
   on('stCopyAll', e => copy(`${it.listing?.titel || ''}\n\n${it.listing?.beschreibung || ''}`, e.currentTarget));
   on('stOnline', () => { it.onlineAt = Date.now(); setStatus(it, 'online'); });
   on('stSold', () => { const v = parseFloat(String($('#stPrice').value).replace(',', '.')); if (isNaN(v)) { toast('Bitte Verkaufspreis eintragen.'); return; } it.soldPrice = v; it.soldAt = Date.now(); setStatus(it, 'verkauft'); });
@@ -559,13 +574,77 @@ async function copy(text, btn) {
   if (btn) { const o = btn.textContent; btn.textContent = 'Kopiert ✓'; setTimeout(() => btn.textContent = o, 1400); } else toast('Kopiert');
 }
 async function shareImages(it) {
-  const files = finalPhotos(it).map((b, i) => new File([b], `vinted-${(it.listing?.titel || 'teil').replace(/[^\wäöüß-]+/gi, '-').slice(0, 30)}-${i + 1}.${extOf(b)}`, { type: b.type || 'image/jpeg' }));
+  const files = finalPhotos(it).map((b, i) => new File([b], `vinted-${slug(it.listing?.titel || 'teil')}-${i + 1}.${extOf(b)}`, { type: b.type || 'image/jpeg' }));
   if (navigator.canShare && navigator.canShare({ files })) {
-    try { await navigator.share({ files }); } catch (e) { if (e.name !== 'AbortError') toast('Teilen ging nicht: ' + e.message); }
+    try { await navigator.share({ files }); toast('Fertig – die Fotos findest du in der Fotos-App unter „Zuletzt“.', 4500); } catch (e) { if (e.name !== 'AbortError') toast('Teilen ging nicht: ' + e.message); }
     return;
   }
   files.forEach(f => { const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name; document.body.appendChild(a); a.click(); a.remove(); });
   toast('Fotos werden heruntergeladen');
+}
+
+/* ========== Export / Import (Sync per Datei) ========== */
+const slug = t => String(t).replace(/[^\wäöüß-]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 30) || 'teil';
+const TRANSIENT = ['textState', 'textError', 'imgState', 'imgError', 'imgStart'];
+const readDataURL = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(b); });
+function dataURLToBlob(u) { const i = u.indexOf(','); const type = (u.slice(0, i).match(/data:([^;]+)/) || [])[1] || 'image/jpeg'; return b64ToBlob(u.slice(i + 1), type); }
+async function packItems(list) {
+  return {
+    format: 'vinted-helfer', version: 1, exportedAt: Date.now(),
+    items: await Promise.all(list.map(async it => {
+      const o = {};
+      for (const [k, v] of Object.entries(it)) if (!['photos', 'generated', ...TRANSIENT].includes(k)) o[k] = v;
+      o.photos = await Promise.all(it.photos.map(readDataURL));
+      o.generated = await Promise.all(it.generated.map(readDataURL));
+      return o;
+    }))
+  };
+}
+function download(file) { const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; document.body.appendChild(a); a.click(); a.remove(); }
+// Teilen muss direkt auf einen Tipp folgen – daher erst Datei bauen, dann eigener Teilen-Knopf.
+function offerFile(file, title, hint) {
+  const bg = document.createElement('div'); bg.className = 'sheet-bg';
+  const canShare = navigator.canShare && navigator.canShare({ files: [file] });
+  bg.innerHTML = `<div class="sheet"><h3>${esc(title)}</h3><p class="hint" style="margin:0">${esc(hint)}</p>
+    ${canShare ? '<button class="btn primary" data-a="share">Teilen / AirDrop</button>' : ''}
+    <button class="btn ${canShare ? '' : 'primary'}" data-a="dl">Als Datei speichern</button>
+    <button class="btn ghost" data-a="x">Abbrechen</button></div>`;
+  const close = () => bg.remove();
+  bg.onclick = async e => {
+    const a = e.target.closest('[data-a]')?.dataset.a; if (e.target === bg) return close(); if (!a) return;
+    if (a === 'x') return close();
+    if (a === 'dl') { download(file); close(); toast('Gespeichert – liegt unter „Downloads“.'); return; }
+    try { await navigator.share({ files: [file] }); close(); toast('Verschickt ✓'); } catch (err) { if (err.name !== 'AbortError') { toast('Teilen ging nicht – nimm „Als Datei speichern“.'); } }
+  };
+  document.body.appendChild(bg);
+}
+async function exportItems(list, name) {
+  if (!list.length) { toast('Nichts zum Exportieren.'); return; }
+  toast('Datei wird vorbereitet…', 1500);
+  try {
+    const data = await packItems(list);
+    const file = new File([JSON.stringify(data)], `${name}-${new Date().toISOString().slice(0, 10)}.json`, { type: 'application/json' });
+    const mb = (file.size / 1048576).toFixed(1).replace('.', ',');
+    offerFile(file, list.length === 1 ? 'Datei ist fertig' : `${list.length} Teile in einer Datei`, `${mb} MB. Per AirDrop an den Mac schicken. Dort kannst du sie in Safari auf Vinted mit dem Vinted-Helfer-Knopf einlesen oder hier unter „Liste → Importieren“.`);
+  } catch (e) { toast('Export fehlgeschlagen: ' + e.message, 5000); }
+}
+async function importFile(file) {
+  let data;
+  try { data = JSON.parse(await file.text()); } catch (e) { toast('Die Datei kann ich nicht lesen.'); return; }
+  if (data?.format !== 'vinted-helfer' || !Array.isArray(data.items)) { toast('Das ist keine Vinted-Helfer-Datei.'); return; }
+  let neu = 0, upd = 0, skip = 0;
+  for (const o of data.items) {
+    try {
+      const ex = items.get(o.id);
+      const t = o.updatedAt || o.createdAt || 0;
+      if (ex && (ex.updatedAt || ex.createdAt || 0) >= t) { skip++; continue; }
+      const gen = (o.generated || []).map(dataURLToBlob);
+      const it = { ...o, photos: (o.photos || []).map(dataURLToBlob), generated: gen, textState: o.listing ? 'done' : 'idle', textError: '', imgState: gen.length ? 'done' : 'idle', imgError: '' };
+      items.set(it.id, it); await DB.put(it); ex ? upd++ : neu++;
+    } catch (e) { skip++; }
+  }
+  toast([neu && `${neu} neu`, upd && `${upd} aktualisiert`, skip && `${skip} schon aktuell`].filter(Boolean).join(' · ') || 'Nichts importiert', 4000);
+  updateBadge(); if (view === 'list') renderList();
 }
 
 /* ========== Liste ========== */
@@ -595,10 +674,17 @@ function renderList() {
         <div class="m"><span class="chip ${i.status}">${STATUS[i.status]}</span>${busy ? '<span class="spin s"></span>' : ''}${errd ? '<span style="color:var(--err)">Fehler</span>' : ''}<span>${fmtDate(i.createdAt)}</span></div></div>
         <div class="p">${i.status === 'verkauft' ? fmtEur(i.soldPrice) : fmtEur(i.listing?.preis)}</div></div>`;
     }).join('') : `<div class="empty">${all.length ? 'Nichts in diesem Filter.' : 'Noch keine Teile. Leg oben bei „Neu“ los.'}</div>`}
-    ${all.length ? `<button class="btn ghost block" id="csvBtn" style="margin-top:8px">Liste als CSV exportieren</button>` : ''}`;
+    <div class="card" style="margin-top:12px"><div class="card-h">Zwischen iPhone und Mac austauschen</div>
+      <p class="hint small">Alles liegt nur auf diesem Gerät. Zum Rüberschicken exportieren und per AirDrop senden, auf dem anderen Gerät importieren. Schon vorhandene Teile werden nur ersetzt, wenn die Datei neuer ist.</p>
+      <div class="row"><button class="btn" id="expBtn" ${shown.length ? '' : 'disabled'}>Exportieren (${filter === 'alle' ? 'alle' : STATUS[filter]}: ${shown.length})</button>
+      <label class="btn"><input type="file" accept=".json,application/json" id="impIn" hidden>Importieren</label></div>
+      ${all.length ? `<button class="btn ghost block" id="csvBtn" style="margin-top:10px">Verkaufsliste als CSV (Excel)</button>` : ''}
+    </div>`;
   $$('[data-filter]', el).forEach(b => b.onclick = () => { filter = b.dataset.filter; renderList(); });
   $$('[data-open]', el).forEach(d => d.onclick = () => { currentId = d.dataset.open; show('edit'); });
   const cb = $('#csvBtn', el); if (cb) cb.onclick = exportCsv;
+  $('#expBtn', el).onclick = () => exportItems(shown, 'vinted-helfer-' + (filter === 'alle' ? 'alle' : filter));
+  $('#impIn', el).onchange = e => { const f = e.target.files[0]; if (f) importFile(f); e.target.value = ''; };
 }
 function exportCsv() {
   const q = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
@@ -636,6 +722,15 @@ function renderSettings() {
     <datalist id="dlText"><option value="gpt-5-mini"><option value="gpt-5"><option value="gpt-4.1-mini"></datalist>
     <datalist id="dlImg"><option value="gpt-image-2"><option value="gpt-image-1.5"><option value="gpt-image-1"><option value="gpt-image-1-mini"></datalist>
     <datalist id="dlTr"><option value="gpt-4o-mini-transcribe"><option value="gpt-4o-transcribe"><option value="whisper-1"></datalist>
+  </div>
+  <div class="card"><div class="card-h">Ausfüll-Helfer für Safari am Mac</div>
+    <ol class="steps">
+      <li>Am Mac im App Store die kostenlose App <b>„Userscripts“</b> (von Justin Wasack) laden und einmal öffnen.</li>
+      <li>Safari → Einstellungen → Erweiterungen → <b>Userscripts</b> anhaken, bei „Website-Zugriff“ vinted.de erlauben.</li>
+      <li>Am Mac in Safari diesen Link öffnen: <a href="vinted-helfer.user.js" target="_blank">Ausfüll-Helfer installieren</a>. Dann oben in der Safari-Leiste aufs Userscripts-Symbol klicken und „Install“ wählen.</li>
+      <li>Fertig: Auf vinted.de → „Artikel verkaufen“ erscheint unten rechts der Knopf „Vinted-Helfer“.</li>
+    </ol>
+    <p class="hint small">Kategorie, Größe und Zustand muss man auf Vinted noch selbst anklicken – der Helfer zeigt sie zum Abschreiben an.</p>
   </div>
   <div class="card"><div class="card-h">Kosten &amp; Daten</div>
     <div class="stat"><span>Geschätzt verbraucht</span><b>ca. ${fmtUsd(S.spent || 0)}</b></div>

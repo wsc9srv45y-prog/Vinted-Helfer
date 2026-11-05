@@ -40,11 +40,12 @@ Updates kommen automatisch: Sobald Claude eine Änderung ins Repo pushed, ist si
 3. **Anzeige erstellen**. Nach wenigen Sekunden ist der Text da, das Bild braucht 30–90 Sekunden.
    Bei vielen Teilen: **„Erstellen & gleich nächstes Teil“**. Dann läuft alles im Hintergrund, die App aber offen lassen.
 4. **Vorschau checken**: Bild mit dem Original vergleichen (Farbe, Muster, Logo) und Texte bei Bedarf direkt anpassen. Wenn's nicht passt, „Neues KI-Bild“ mit Änderungswunsch.
-5. **Freigeben**, dann kommt die Hochlade-Hilfe:
-   - **Fotos sichern**: landen über das Teilen-Menü in der Mediathek.
-   - Titel und Beschreibung kopieren und in der Vinted-App einfügen.
-   - Kategorie, Größe, Zustand und Preis stehen in der App zum Abschreiben bzw. Kopieren.
+5. **Freigeben**, dann gibt's zwei Wege zum Hochladen:
+   - **📱 Am iPhone:** „Fotos sichern“ → im Teilen-Menü „Bilder sichern“. Die Fotos liegen dann in der Fotos-App unter „Zuletzt“. Titel und Beschreibung kopieren und in der Vinted-App einfügen. Kategorie, Größe, Zustand und Preis stehen unter „Texte“.
+   - **💻 Am Mac:** „Zum Mac schicken (AirDrop)“, dann landet die Datei am Mac unter „Downloads“. In Safari auf vinted.de „Artikel verkaufen“ öffnen, unten rechts auf **„Vinted-Helfer“** klicken, Datei wählen und **„Formular ausfüllen“**. Fotos, Titel, Beschreibung, Preis und Marke werden eingetragen. Kategorie, Größe und Zustand klickt ihr noch selbst an, der Helfer zeigt die Werte dazu.
 6. **Ist online ✓**, und später **Verkauft ✓** mit dem echten Preis.
+
+**Wo ist was gespeichert?** Alles liegt in der App auf dem jeweiligen Gerät, ihr findet es unter **„Liste“**. Es gibt keine Cloud. Exportiert werden nur die Dinge, die ihr selbst teilt (Fotos, Datei, CSV).
 
 In der **Liste** seht ihr alle Teile und wie viel ihr dieses Jahr verkauft habt. Ab 30 Verkäufen oder 2.000 € im Jahr meldet Vinted euch ans Finanzamt. Private Gebrauchtkleidung bleibt trotzdem steuerfrei, und die CSV-Liste ist euer Nachweis.
 
@@ -55,12 +56,24 @@ In der **Liste** seht ihr alle Teile und wie viel ihr dieses Jahr verkauft habt.
 
 Die echten Zahlen stehen auf platform.openai.com unter **Usage**.
 
+## Ausfüll-Helfer für Safari am Mac einrichten (einmalig)
+1. Am Mac im App Store die kostenlose App **„Userscripts“** (von Justin Wasack) laden und einmal öffnen.
+2. **Safari → Einstellungen → Erweiterungen → Userscripts** anhaken und bei „Website-Zugriff“ vinted.de erlauben (oder „Immer auf allen Websites erlauben“).
+3. In Safari **https://wsc9srv45y-prog.github.io/Vinted-Helfer/vinted-helfer.user.js** öffnen, aufs Userscripts-Symbol in der Safari-Leiste klicken und **„Install“** wählen.
+   - Falls kein „Install“ kommt: Userscripts-Symbol → „Open Extension Page“ → **+ → New JS**, den ganzen Text der Seite reinkopieren und speichern.
+4. Auf vinted.de → **„Artikel verkaufen“** erscheint jetzt unten rechts der Knopf **„🧺 Vinted-Helfer“**.
+
+Es wird nichts automatisch veröffentlicht, das „Hochladen“ auf Vinted klickt ihr immer selbst. Falls etwas nicht richtig ausgefüllt wird: Im Helfer auf **„🔧 Diagnose kopieren“** klicken und den Text an Claude schicken. Damit lässt sich der Helfer an das echte Vinted-Formular anpassen.
+
+## Zwischen iPhone und Mac austauschen
+Unter **Liste → Exportieren** könnt ihr alle Teile oder nur einen Filter (z. B. „Bereit“) als Datei exportieren und per AirDrop schicken. Auf dem anderen Gerät importiert ihr sie unter **Liste → Importieren**. Schon vorhandene Teile werden nur ersetzt, wenn die Datei neuer ist. Das taugt auch als Backup.
+
 ## Gut zu wissen
-- **Daten bleiben pro Gerät.** Was am iPhone angelegt wurde, sieht man am Laptop nicht. Am einfachsten macht ihr alles am iPhone und ladet über die Vinted-App hoch.
+- **Daten bleiben pro Gerät.** Rüber geht's per Export/AirDrop (siehe oben).
 - **Originalfotos bleiben in der Anzeige.** Das KI-Bild ist nur das Titelbild. So sehen Käufer das echte Teil, und es gibt keinen Ärger mit „Artikel entspricht nicht der Beschreibung“.
 - Wenn OpenAI neue Modelle rausbringt, lassen sie sich unter ⚙︎ → Modelle umstellen.
 
 ## Nächste Ausbaustufen (Ideen)
-- Upload-Helfer für Safari am Mac, der das Vinted-Formular automatisch ausfüllt
-- Sync zwischen iPhone und Laptop
+- Ausfüll-Helfer an das echte Vinted-Formular anpassen (nach dem ersten Test mit der Diagnose)
+- Automatischer Sync über eine Cloud-Datenbank statt AirDrop
 - Weitere Plattformen (z. B. Kleinanzeigen)
